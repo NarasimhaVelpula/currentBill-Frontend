@@ -1,24 +1,27 @@
-import logo from './logo.svg';
+
 import './App.css';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
+import Bills from './Pages/Bills';
+import Bill from './Pages/Bill';
+import {  Container } from '@mui/material';
+import NewBill from './Pages/NewBill';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container >
+
+    <BrowserRouter>
+    <Routes>
+      <Route index element={<Bills />} />
+      <Route path=":billId" element={<Bill />} />
+      <Route path="newBill" element={<NewBill />} />
+    </Routes>
+  </BrowserRouter>
+  </Container>
   );
 }
 
