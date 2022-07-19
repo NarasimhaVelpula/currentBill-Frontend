@@ -2,18 +2,36 @@ import Box from '@mui/material/Box';
 import {TextField, Button} from '@mui/material'
 import React, { useState } from 'react'
 import DateTimePicker from 'react-datetime-picker';
+import axios from './../axios'
+import {useDispatch} from 'react-redux'
+import { billAdded } from '../services/Bills';
+import { useNavigate } from 'react-router-dom'
+
 
 function NewBill() {
-
-    const handleSubmit=(event)=>{
-        event.preventDefault()
-    }
+    
+    let dispatch=useDispatch();
+    let navigator=useNavigate()
+    
     const [bill, setBill] = useState({
         paidDate: "",
         billDate: "",
         amount: "",
         units:""
     })
+    const [loading,setLoading]=useState(false)
+    const handleSubmit=async (event)=>{
+      event.preventDefault()
+      setLoading(true)
+      let response=await axios.post("/",bill)
+      setLoading(false)
+      dispatch(billAdded(response.data))
+      navigator("/")
+
+
+
+
+  }
 
     const handleChange=(event)=>{
         setBill(bill=> {return{...bill,[event.target.id]:event.target.value}})
@@ -69,6 +87,7 @@ function NewBill() {
       fullWidth
       variant="contained"
       sx={{ mt: 3, mb: 2 }}
+      disabled={loading}
     >
       Save
     </Button>

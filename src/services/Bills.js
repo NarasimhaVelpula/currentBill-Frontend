@@ -1,20 +1,7 @@
-import {createSlice} from '@reduxjs/toolkit'
-
+import {createSlice, createAsyncThunk} from '@reduxjs/toolkit'
+import axios from '../axios'
 const initialState={
-    bills:[{
-        id:'123abc',
-        billDate: new Date("2022","01","02").toLocaleDateString(),
-        paidDate: new Date("2022", "01", "24").toLocaleDateString(),
-        units: 230,
-        amount: 2300
-    },
-    {
-        id:'123abc1234',
-        billDate: new Date("2022", "02", "01").toLocaleDateString(),
-        paidDate: new Date("2022", "02", "24").toLocaleDateString(),
-        units: 230,
-        amount: 2300
-    }],
+    bills:[],
     fetchStatus: 'idle',
     fetchError: null,
     editStatus:'idle',
@@ -22,6 +9,13 @@ const initialState={
     deleteStatus: 'idle',
     deleteError: null
 }
+
+export const fetchBills = createAsyncThunk('bills/fetchBills', async () => {
+    const response = await axios.get('/')
+    console.log(response.data)
+    return response.data
+  })
+
 
 const billSlice=createSlice({
     name: 'bills',
@@ -31,8 +25,9 @@ const billSlice=createSlice({
             state.bills.push(action.payload)
         },
         billUpdated(state,action){
-            const {id,billDate,paidDate,units,amount}=action.payload
-            let existingPost=state.bills.filter(bill=>bill.id===id)
+            const {_id,billDate,paidDate,units,amount}=action.payload
+            console.log(action.payload,state)
+            let existingPost=state.bills.filter(bill=>bill._id===_id)
             if(existingPost)
             {
                 existingPost.billDate=billDate
@@ -42,15 +37,35 @@ const billSlice=createSlice({
             }
         },
         billDeleted(state,action){
-            const {id}=action.payload
-            state=state.bills.filter(bill=> bill.id!==id)
+            const id=action.payload
+            state.bills=state.bills.filter(bill=> bill._id!==id)
         }
+    },
+    extraReducers(builder){
+        builder
+        .addCase(fetchBills.pending,(state,action)=>{
+            state.fetchStatus="Loading"
+        })
+        builder
+        .addCase(fetchBills.fulfilled,(state,action)=>{
+            state.fetchStatus="succeeded"
+            state.bills=action.payload
+        })
+        builder
+        .addCase(fetchBills.rejected,(state,action)=>{
+            state.fetchStatus="error"
+            state.fetchError=action.error.message
+        })
+
     }
 })
 
 export const selectAllBills=state=> state.bills.bills
 
-export const selectBill=(state,billId)=>state.bills.bills.find(bill=>bill.id===billId)
+export const selectBill=state=>{
+    console.log(state.bills.bills)
+    return "billId"
+}
 
 export const {billAdded,billUpdated,billDeleted}=billSlice.actions
 
